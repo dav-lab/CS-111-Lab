@@ -215,15 +215,38 @@ def countOneDay(listOfDictionaries,date):
             countList.append(dayDict) 
     return countList        
 
+def emailsSent(emails): # when testing, use message
+    '''Returns a list of dictionaries, where each elt of the list 
+    is a separate email. KEYS: from, numEmails, label'''
+    emailList = [] # will store each dictionary
+    listOfEmails = sort(emails)
+    listOfCounts = countFrom(listOfEmails) 
+    dictOfCounts = dict((k,v) for d in listOfCounts for (k,v) in d.items())
+    for i in range(len(emails)): # loop through each email in the message list
+        emailDict = {}  
+        
+        # at each index j, there is a dictionary
+        for j in range(len(emails[i]['payload']['headers'])):
+            if emails[i]['payload']['headers'][j].values()[0] == 'From':
+                fromAddress =emails[i]['payload']['headers'][j].values()[1]
+                email2 = getEmailAddress(fromAddress)
+                emailDict['FROM'] = email2[0]
+                emailDict['LABEL'] = addFromPersonLabel(email2)
+                emailDict['NUM SENT'] = dictOfCounts[email2[0]]
+        if emailDict not in emailList:
+            emailList.append(emailDict)
+    return emailList 
+
 # ~~TESTING 
 
 # reads the json file and prints it out
 json_data = open("cs111EmailsALL.json").read()
 message = json.loads(json_data) # format=full  
 listOfEmails = sort(message)
+#print emailsSent(message)
 #print listOfEmails
 #print countTo(listOfEmails)
-count1 = countFrom(listOfEmails)
+#print countFrom(listOfEmails)
 #print countDays(listOfEmails)
 #print countOneDay(listOfEmails,'2015-01-26')
 #printList(listOfEmails)
@@ -250,16 +273,21 @@ for i in listOfEmails:
     if i['FROM_LABEL'] == 'Admin':
         adminFreq.append(i)
 
-result = dict((k,v) for d in count1 for (k,v) in d.items())
+# turns a list of dictionaries into one big dictionary
+#result = dict((k,v) for d in count1 for (k,v) in d.items())
 
-percentages = [float(len(facFreq))/total,float(len(stuFreq))/total,float(len(stuLeadFreq))/total,float(len(adminFreq))/total]
+#print result
+#percentages = [float(len(facFreq))/total,float(len(stuFreq))/total,float(len(stuLeadFreq))/total,float(len(adminFreq))/total]
 
+# make a csv file from the dictionary
 import csv
 
-myDict = result
+csv_columns = ['NUM SENT','FROM','LABEL']
+listOfDicts= emailsSent(message)
 
-with open('test.csv', 'wb') as f:
-    writer = csv.writer(f)
-    for row in myDict.iteritems():
-        writer.writerow(row)
+with open('test.csv', 'wb') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+    writer.writeheader()
+    for data in listOfDicts:
+        writer.writerow(data)  
             
