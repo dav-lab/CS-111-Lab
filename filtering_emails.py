@@ -214,7 +214,6 @@ def countOneDay(listOfDictionaries,date):
         if dayDict not in countList:
             countList.append(dayDict) 
     return countList        
-     
 
 # ~~TESTING 
 
@@ -224,7 +223,43 @@ message = json.loads(json_data) # format=full
 listOfEmails = sort(message)
 #print listOfEmails
 #print countTo(listOfEmails)
-#print countFrom(listOfEmails)
+count1 = countFrom(listOfEmails)
 #print countDays(listOfEmails)
 #print countOneDay(listOfEmails,'2015-01-26')
-printList(listOfEmails)
+#printList(listOfEmails)
+#print countFrom(listOfEmails)#Lfacist of faculty dictionaries
+facFreq = []
+stuFreq = []
+stuLeadFreq =[]
+adminFreq = []
+total = float(len(listOfEmails))
+
+for i in listOfEmails:
+    if i['FROM_LABEL'] == 'Faculty':
+        facFreq.append(i)
+
+for i in listOfEmails:
+    if i['FROM_LABEL'] == 'Student':
+        stuFreq.append(i)
+
+for i in listOfEmails:
+    if i['FROM_LABEL'] == 'StudentLdr':
+        stuLeadFreq.append(i)
+
+for i in listOfEmails:
+    if i['FROM_LABEL'] == 'Admin':
+        adminFreq.append(i)
+
+result = dict((k,v) for d in count1 for (k,v) in d.items())
+
+percentages = [float(len(facFreq))/total,float(len(stuFreq))/total,float(len(stuLeadFreq))/total,float(len(adminFreq))/total]
+
+import csv
+
+myDict = result
+
+with open('test.csv', 'wb') as f:
+    writer = csv.writer(f)
+    for row in myDict.iteritems():
+        writer.writerow(row)
+            
