@@ -21,7 +21,7 @@ xdr = Range1d(start=-2, end=2)
 ydr = Range1d(start=-2, end=2)
 #
 #title = "Web browser market share (November 2013)"
-title = "Emails Test"
+title = "Number of Emails Sent"
 plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
 #
 #colors = {"Chrome": seagreen, "Firefox": tomato, "Safari": orchid, "Opera": firebrick, "IE": skyblue, "Other": lightgray}
@@ -64,7 +64,7 @@ def polar_to_cartesian(r, start_angles, end_angles):
 
     return zip(*points)
 #
-first = True
+#first = True
 #
 #for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
 #    #creatings chart
@@ -76,6 +76,7 @@ first = True
 for person, start_angle, end_angle in zip(types, start_angles, end_angles):
     #creatings chart
     versions = df[(df.Type == person) & ((df.NumEmails/100)*875 >= 12)]
+    versions2 = df[(df.Type == person) & ((df.NumEmails/100)*875 < 12)]
     angles = versions.NumEmails.map(radians).cumsum() + start_angle
     #list of start to end angles
     end = angles.tolist() + [end_angle]
@@ -100,6 +101,9 @@ for person, start_angle, end_angle in zip(types, start_angles, end_angles):
     
     #Where is the fifth slice coming from?
     emailtext = [(float(emails)/100.0)*875.0 for emails in versions.NumEmails  ]
+    totalOther = 0
+    for emails in versions2.NumEmails:
+        totalOther += (float(emails)/100.0)*875.0
     nametext = [name for name in versions.Names  ]
     #text = [ number if share >= 1 else "" for number, share in zip(versions.VersionNumber, versions.Share) ]
     text = [(b.split('@')[0] + ': '+ str(int(round(a)))) if a>=12 else 'yolo' for a,b in zip(emailtext,nametext)]
@@ -114,38 +118,39 @@ for person, start_angle, end_angle in zip(types, start_angles, end_angles):
 #
     text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
     text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle for angle in text_angle]
-
-    #if text:
-    #    text.insert(0, 'version)')
+    if person == 'Student':
+        text.insert(10, 'other: ' + str(int(round(totalOther))))
+    #if first and text:
+    #    text.insert(0, 'other')
     #    offset = pi / 48
     #    text_angle.insert(0, text_angle[0] - offset)
     #    start.insert(0, start[0] - offset)
     #    end.insert(0, end[0] - offset)
     #    x, y = polar_to_cartesian(1.25, start, end)
     #    first = False
-
+    
     text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
     glyph = Text(x="x", y="y", text="text", angle="angle",
         text_align="center", text_baseline="middle")
     plot.add_glyph(text_source, glyph)
-#
-#
-#def to_base64(png):
-#    png = 'pusheen.png'
-#    return "data:image/png;base64," + base64.b64encode(png).decode("utf-8")
-#
-#urls = [ to_base64('foo')]
-#x, y = polar_to_cartesian(1.7, start_angles, end_angles)
-#
-#icons_source = ColumnDataSource(dict(urls=urls, x=x, y=y))
-glyph = ImageURL(url="pusheen.png")
-plot.add_glyph(glyph)
 
-text = [ "%.02f%%" % value for value in selected.NumEmails ]
+text.insert(3, 'other: ' + str(int(round(totalOther))))
+#offset = pi / 48
+#text_angle.insert(0, text_angle[0] - offset)
+#start.insert(0, 10)
+#end.insert(0, 10)
+x, y = polar_to_cartesian(1.25, start, end)
+
+
+
+numtext = [ "%.02f%%" % value for value in selected.NumEmails ]
+nametext = [name for name in types]
+text = [b + ': '+str(a) for a,b in zip(numtext,nametext)]
+
 x, y = polar_to_cartesian(0.7, start_angles, end_angles)
 
 text_source = ColumnDataSource(dict(text=text, x=x, y=y))
-glyph = Text(x="x", y="y", text="text", text_align="center", text_baseline="middle", text_font_size = '20pt')
+glyph = Text(x="x", y="y", text="text", text_align="center", text_baseline="middle", text_font_size = '10pt', text_font_style = 'bold')
 plot.add_glyph(text_source, glyph)
 
 
