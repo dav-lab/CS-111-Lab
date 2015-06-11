@@ -8,14 +8,32 @@ import json
 import base64
 import re # allows us to use regular expressions to clean up email addresses
 import datetime
-#from datetime import datetime
 import time
-from collections import Counter
 
 pplDict = {'Faculty': ['rpricejo@wellesley.edu', 'fturbak@wellesley.edu', 'slee@wellesley.edu', 'sbuck@wellesley.edu'], 
             'StudentLdr': ['jcherayi@wellesley.edu', 'mfendroc@wellesley.edu', 'afoun@wellesley.edu', 'mjain2@wellesley.edu', 'mjung@wellesley.edu', 'ctsui@wellesley.edu', 'svoigt@wellesley.edu', 'sburns@wellesley.edu', 'bcarver@wellesley.edu'],
             'Admin': ['rpurcell@wellesley.edu'],
             'GoogleGroup': ['cs111-spring15@wellesley.edu']}
+            
+# FUNCTION TABLE OF CONTENTS
+# - getEmailAddress
+# - getMonth
+# - getDate
+# - getTime
+# - addPeriodLabel
+# - addToPersonLabel
+# - addFromPersonLabel
+# - cleanBody
+# - sort
+# - printList
+# - countTo
+# - countFrom
+# - countDays
+# - countOneDay
+# - emailsSent
+# - emailContent
+# - threadIDSort
+# - avgTimeDiff
 
 def getEmailAddress(addressLine):
     '''helper function for sort() that uses regular expressions'''
@@ -39,7 +57,7 @@ def getMonth(month_str):
     elif month_str == 'Jun':
         return int(6)
 
-# args timestamp will be in the form (string)
+# Args timestamp will be in the form (string)
 # Sun, 1 Feb 2015 06:33:04 -0800 (PST)
 # Sat, 31 Jan 2015 19:45:51 -0800 (PST)
                
@@ -263,8 +281,6 @@ def emailContent(mylist, filename):
         textfile.write(i['BODY'])
     textfile.close()
 
-
-
 def threadIDSort(listOfDict):
     '''returns list of dictionaries where each dictionary has 
     the key as the threadID and the value as a list of timestamps'''
@@ -299,11 +315,12 @@ def avgTimeDiff(dateTimeDict):
 # ~~TESTING 
 
 # reads the json file and prints it out
-json_data = open("cs111EmailsALL.json").read()
+json_data = open("cs111EmailsFINAL.json").read()
 message = json.loads(json_data) # format=full  
 listOfEmails = sort(message)
+
 #print threadIDSort(listOfEmails)
-print avgTimeDiff(threadIDSort(listOfEmails))
+#print avgTimeDiff(threadIDSort(listOfEmails))
 #emailContent(listOfEmails, 'cleanedEmails')
 #print emailsSent(message)
 #print listOfEmails
@@ -353,5 +370,4 @@ for i in listOfEmails:
 #    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
 #    writer.writeheader()
 #    for data in listOfDicts:
-#        writer.writerow(data)  
-#            
+#        writer.writerow(data)   
