@@ -1,3 +1,5 @@
+# quickstart2.py makes a json file, cs111EmailsAll, which is used in filtering_emails.py
+
 from datetime import datetime
 import os
 
