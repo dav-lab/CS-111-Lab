@@ -87,7 +87,20 @@ def addFromPersonLabel(fromEmail):
             if e in pplDict.get(k): # if email address is a faculty's, student leader's or admin's
                 return k
     return 'Student'  # not faculty, studentldr or administration so assuming it's a student                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+
+def cleanBody(mssg):
+    '''@mssg: the body of the email (str)'''
+    '''helper function for sort()'''
+    '''returns a cleaned up version of the input message'''
+    # gets the part of the message before the given string, which sometimes appear at the end of the email
+    new = mssg.rsplit('---------- Forwarded message ----------',1)[0]
+    new2 = new.rsplit('- lyn -',1)[0]
+    new3 = new2.rsplit('-sohie',1)[0]
+    new4 = new3.rsplit(' > On',1)[0]
+    new5 = new4.rsplit('Sent from my iPhone',1)[0]
+    new6 = new5.rsplit(' -',1)[0]
+    return new6
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 def sort(emails): # when testing, use message
     '''Returns a list of dictionaries, where each elt of the list 
     is a separate email. KEYS: to, from, time, body, threadID'''
@@ -118,7 +131,9 @@ def sort(emails): # when testing, use message
                 if item == '':
                     messageList.remove(item)
         
-        emailDict['BODY'] = ' '.join(messageList)
+       # emailDict['BODY'] = ' '.join(messageList)
+        unfilteredbody = ' '.join(messageList)
+        emailDict['BODY'] = cleanBody(unfilteredbody)
         emailDict['THREADID'] = emails[i]['threadId']
         emailDict['TIME'] = emails[i]['payload']['headers'][1]['value'].split(';')[1].strip('   ')
         timestamp = emails[i]['payload']['headers'][1]['value'].split(';')[1].strip('   ')
@@ -147,7 +162,7 @@ def sort(emails): # when testing, use message
 def printList(inputList):
     '''prints out each element of the list on a new line'''
     for i in range(len(inputList)):
-        print inputList[i]
+        print inputList[i]['BODY'] # adding ['BODY'] just gives us the body of the emails
         print '\n'
 
 def countTo(listOfDictionaries):
@@ -217,7 +232,7 @@ def countOneDay(listOfDictionaries,date):
 
 def emailsSent(emails): # when testing, use message
     '''Returns a list of dictionaries, where each elt of the list 
-    is a separate email. KEYS: from, numEmails, label'''
+    is a separate email. KEYS: from, numEmails, label. Important for making the csv'''
     emailList = [] # will store each dictionary
     listOfEmails = sort(emails)
     listOfCounts = countFrom(listOfEmails) 
@@ -237,12 +252,23 @@ def emailsSent(emails): # when testing, use message
             emailList.append(emailDict)
     return emailList 
 
+def emailContent(mylist, filename):
+    '''@mylist: list of dictionaries'''
+    '''@filename: name of new file'''
+    '''writes the content into a textfile'''
+    textfile = open(filename+'.txt','w')
+    for i in mylist:
+        #print i['BODY']
+        textfile.write(i['BODY'])
+    textfile.close()
+
 # ~~TESTING 
 
 # reads the json file and prints it out
 json_data = open("cs111EmailsALL.json").read()
 message = json.loads(json_data) # format=full  
 listOfEmails = sort(message)
+emailContent(listOfEmails, 'cleanedEmails')
 #print emailsSent(message)
 #print listOfEmails
 #print countTo(listOfEmails)
@@ -280,14 +306,14 @@ for i in listOfEmails:
 #percentages = [float(len(facFreq))/total,float(len(stuFreq))/total,float(len(stuLeadFreq))/total,float(len(adminFreq))/total]
 
 # make a csv file from the dictionary
-import csv
-
-csv_columns = ['NUM SENT','FROM','LABEL']
-listOfDicts= emailsSent(message)
-
-with open('test.csv', 'wb') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-    writer.writeheader()
-    for data in listOfDicts:
-        writer.writerow(data)  
-            
+#import csv
+#
+#csv_columns = ['NUM SENT','FROM','LABEL']
+#listOfDicts= emailsSent(message)
+#
+#with open('test.csv', 'wb') as csvfile:
+#    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+#    writer.writeheader()
+#    for data in listOfDicts:
+#        writer.writerow(data)  
+#            
