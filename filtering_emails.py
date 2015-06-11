@@ -8,6 +8,7 @@ import json
 import base64
 import re # allows us to use regular expressions to clean up email addresses
 import datetime
+#from datetime import datetime
 import time
 from collections import Counter
 
@@ -262,13 +263,48 @@ def emailContent(mylist, filename):
         textfile.write(i['BODY'])
     textfile.close()
 
+
+
+def threadIDSort(listOfDict):
+    '''returns list of dictionaries where each dictionary has 
+    the key as the threadID and the value as a list of timestamps'''
+    threadDict = {}
+    for fullDict in listOfDict:
+        key = fullDict['THREADID']
+        value = fullDict['DATE'] + ' '+ fullDict['TIME']
+        #dateInt = map(int,date)
+        #time = (fullDict['TIME']).split(':')
+        #timeInt = map(int,time)
+        #timestamp = datetime.datetime(dateInt[0],dateInt[1],dateInt[2],timeInt[0],timeInt[1],timeInt[2])
+        #value = timestamp # in datetime form
+        #print timestamp
+        if key not in threadDict:
+            threadDict[key] = [value]
+        else:
+            threadDict[key].append(value)
+    return {key:threadDict[key] for key in threadDict if len(threadDict[key])>1}
+    
+def avgTimeDiff(dateTimeDict):
+    ''' Gives the difference between two date times in minutes'''
+    fmt = '%Y-%m-%d %H:%M:%S'
+    timeList = []
+    for item in dateTimeDict:
+        time1 = datetime.datetime.strptime(dateTimeDict[item][-1], fmt)
+        time2 = datetime.datetime.strptime(dateTimeDict[item][-2], fmt)
+        timeList.append((time2 - time1))
+    avgList = (str(sum(timeList, datetime.timedelta(0))/len(timeList))).split(":")
+    avgMins = int(avgList[0])*60 + int(avgList[1])
+    return sum(timeList, datetime.timedelta(0))/len(timeList)
+    
 # ~~TESTING 
 
 # reads the json file and prints it out
 json_data = open("cs111EmailsALL.json").read()
 message = json.loads(json_data) # format=full  
 listOfEmails = sort(message)
-emailContent(listOfEmails, 'cleanedEmails')
+#print threadIDSort(listOfEmails)
+print avgTimeDiff(threadIDSort(listOfEmails))
+#emailContent(listOfEmails, 'cleanedEmails')
 #print emailsSent(message)
 #print listOfEmails
 #print countTo(listOfEmails)
@@ -277,6 +313,8 @@ emailContent(listOfEmails, 'cleanedEmails')
 #print countOneDay(listOfEmails,'2015-01-26')
 #printList(listOfEmails)
 #print countFrom(listOfEmails)#Lfacist of faculty dictionaries
+#print threadIDSort(listOfEmails)
+
 facFreq = []
 stuFreq = []
 stuLeadFreq =[]
