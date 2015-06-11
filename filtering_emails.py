@@ -332,11 +332,12 @@ listOfEmails = sort(message)
 #print countFrom(listOfEmails)#Lfacist of faculty dictionaries
 #print threadIDSort(listOfEmails)
 
-facFreq = []
-stuFreq = []
-stuLeadFreq =[]
-adminFreq = []
-total = float(len(listOfEmails))
+#lists of dictionaries
+facFreq = [] #all emails with faculty label
+stuFreq = [] # all emails with student label
+stuLeadFreq =[] #all emails with student leader label
+adminFreq = [] #all emails with admin label
+total = float(len(listOfEmails)) # total emails
 
 for i in listOfEmails:
     if i['FROM_LABEL'] == 'Faculty':
